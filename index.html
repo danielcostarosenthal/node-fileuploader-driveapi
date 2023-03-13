@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Node.js File Uploader</title>
+		<style>
+			body {
+				font-family: sans-serif;
+				font-size: 18px;
+				background-color: #333;
+				color: #eee;
+			}
+
+			input,
+			button {
+				font: inherit;
+				width: max-content;
+				cursor: pointer;
+			}
+
+			form,
+			div {
+				display: flex;
+				flex-flow: column nowrap;
+				gap: 18px;
+			}
+
+			div {
+				gap: 10px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<h1>File Uploader with Node.js and Drive API</h1>
+		<form id="uploadForm">
+			<div>
+				<input type="file" id="myFiles" accept="*" multiple />
+			</div>
+			<div>
+				<input type="text" id="folderName" placeholder=" Folder name? " />
+			</div>
+			<button>Submit</button>
+		</form>
+		<h2></h2>
+		<h3></h3>
+		<script>
+			const form = document.getElementById('uploadForm')
+
+			const sendFiles = async () => {
+				const myFiles = document.getElementById('myFiles').files
+				const folderName = document.getElementById('folderName').value
+				const formData = new FormData(form)
+				formData.append('folderName', folderName)
+
+				Object.keys(myFiles).forEach((key) => {
+					formData.append(myFiles.item(key).name, myFiles.item(key))
+				})
+
+				const response = await fetch('http://localhost:5000/upload', {
+					method: 'POST',
+					body: formData
+				})
+
+				const data = await response.json()
+				const h2 = document.querySelector('h2')
+				h2.textContent = `Status: ${data.status}`
+				const h3 = document.querySelector('h3')
+				h3.textContent = data.message.replaceAll(',', ', ')
+				console.log(data.message.replaceAll(',', ', '))
+			}
+
+			form.addEventListener('submit', (e) => {
+				e.preventDefault()
+				sendFiles()
+				form.reset()
+			})
+		</script>
+	</body>
+</html>
