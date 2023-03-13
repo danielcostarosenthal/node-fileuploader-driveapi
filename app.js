@@ -8,6 +8,8 @@ const checkFilesExtensions = require('./middleware/checkFilesExtensions')
 const checkFilesSize = require('./middleware/checkFilesSize')
 const { createFileInDrive, createFolderInDrive } = require('./controller/createFileAndFolderController')
 
+const { deleteFile, deleteFolder } = require('./controller/deleteFileAndFolderController')
+
 const app = express()
 
 app.get('/', (req, res) => {
@@ -24,9 +26,14 @@ app.post('/upload', fileUpload({ createParentPath: true }), checkFilesPayload, c
 		Object.keys(files).forEach((key) => {
 			const fileName = files[key].name
 			const filePath = path.join(__dirname, assetsFolder, folderName, fileName)
+			const folderPath = path.join(__dirname, assetsFolder, folderName)
 
-			files[key].mv(filePath, (err) => {
-				createFileInDrive(fileName, filePath)
+			files[key].mv(filePath, async (err) => {
+				await createFileInDrive(fileName, filePath)
+
+				await deleteFile(filePath)
+				await deleteFolder(folderName, folderPath)
+
 				if (err) return res.status(500).json({ status: 'error', message: err })
 			})
 		})

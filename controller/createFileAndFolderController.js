@@ -31,6 +31,8 @@ const createFileInDrive = async (name, path) => {
 	}
 
 	folderId = null
+
+	return true
 }
 
 const createFolderInDrive = async (folderName) => {
